@@ -14,7 +14,7 @@ conda create -n tormes_report -c conda-forge datapane=0.14.0 plotly biopython
 After running the tormes pipeline, unpack tormes report files:  
 
 ```
-tar -xvgf tormes_report.tgz
+tar -xvzf tormes_report.tgz
 ```
 
 copy tormes_report_wip.py into the tormes_report folder
