@@ -119,6 +119,7 @@ with open("accessory_binary_genes.fa.newick") as acc:
     abg = Phylo.read(acc, 'newick')
 abg = newicktophylo(abg)
 
+## The whole resistance tables and heatmap, i am rethinking and currently up to this section.
 ## Card Resistance Tables
 dirname = '\\Users\\pathe\\Desktop\\Our10Smalto_Plus_NatureStenos\\report_files'
 filelist = []
