@@ -107,8 +107,8 @@ def newicktophylo(t):
     fig = ff.create_dendrogram(m, orientation='right', labels=ticknames)
     fig.update_layout(width=800, height=800, yaxis={'side': 'right'}, plot_bgcolor='rgba(0,0,0,0)')
     fig.update_traces(hoverinfo='x')
-    fig.update_xaxes(minor_ticks="")
-    fig.update_yaxes(minor_ticks="")
+    fig.update_xaxes(ticks="")
+    fig.update_yaxes(ticks="")
     return(fig)
     
 with open ("core_gene_alignment.newick") as core:
