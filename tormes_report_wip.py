@@ -183,7 +183,7 @@ def makeheatmap(df, color):
    df.drop(columns='NUM_FOUND', inplace=True)
    if len(df.columns) < len(df):
       df = df.T
-   fig = px.imshow(df, color_continuous_scale=color)
+   fig = px.imshow(df, color_continuous_scale=color, width=900, height=900)
    fig.update_layout(coloraxis_showscale=False)
    return(fig)
 
