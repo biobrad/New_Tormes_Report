@@ -7,6 +7,50 @@ import plotly.graph_objects as go
 import itertools
 from Bio import Phylo
 import plotly.figure_factory as ff
+
+# heading stuff
+def info():
+ header=[]
+ for word in ['version', 'pipeline']:
+  with open(r'tormes.log', 'r') as fp:
+   lines = fp.readlines()
+  for line in lines:
+   if line.find(word) != -1:
+    header.append(line)
+ return(header)
+turtles = info()
+wonk = """# Tormes Report \n""" + "\n" + "### " + turtles[0] + "\n" + "### " + turtles[1] + "\n" + "### " + turtles[2]
+
+## new table creation method
+
+def generate_html(dataframe: pd.DataFrame):
+    # get the table HTML from the dataframe
+    table_html = dataframe.to_html(table_id="table")
+    # construct the complete HTML with jQuery Data tables
+    # You can disable paging or enable y scrolling on lines 20 and 21 respectively
+    html = f"""
+    <html>
+    <header>
+        <link href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css" rel="stylesheet">
+    </header>
+    <body>
+    {table_html}
+    <script src="https://code.jquery.com/jquery-3.6.0.slim.min.js" integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI=" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script>
+        $(document).ready( function () {{
+            $('#table').DataTable({{
+                // paging: false,    
+                // scrollY: 400,
+            }});
+        }});
+    </script>
+    </body>
+    </html>
+    """
+    # return the html
+    return html
+
 ## Sequence assembly report
 df = pd.read_csv("sequencing_assembly_report.txt", sep='\t')
 click = []
@@ -24,8 +68,18 @@ fig.update_layout(title_text='Sequencing Assembly Report', autosize=False, heigh
             type="buttons",
             bgcolor='mediumspringgreen',
             bordercolor='black',
+            xanchor="left",
+            yanchor="top",
+            direction = "left",
+            pad={"r": 10, "t": 10},
+            x=0.11,
+            y=1.16,
             showactive=True,
             buttons=click)])
+
+#generating new html datatable
+sarhtml = generate_html(df)
+
 genome_info = """Field | Description
 ----- | ---------------------------------------------------------------------------------------
 **Sample** | Name of the sample
@@ -45,6 +99,8 @@ Additionally, 16S rRNA genes were extracted from each genome by using [Barrnap](
 The number between brackets refers to the percentage of reads (when starting TORMES from raw reads) or contigs (when starting TORMES from already assembled genomes) from each sample covered by the clade rooted at this taxon.
 """
 tax_krak = pd.read_csv('taxonomic-identification-kraken2.txt', sep='\t')
+taxkrakhtml = generate_html(tax_krak)
+
 tax_rdp_info = """### Taxonomic identification by using RDP Classifier
 Field | Description
 ----- | ---------------------------------------------------------------------------------------
@@ -57,8 +113,12 @@ Field | Description
 **Genus** | Taxonomic genus that the 16S rRNA gene was assigned over a confidence level of 0.8.
 """
 tax_rdp = pd.read_csv('taxonomic-identification-16S-rRNA.RDP.txt', sep='\t')
+taxrdphtml = generate_html(tax_rdp)
+
 # MLST 
 mlst_data = pd.read_csv("mlst.tab", sep='\t', names=['Sequence', 'Scheme', 'ST', '1', '2', '3', '4', '5', '6', '7'])
+mlsthtml = generate_html(mlst_data)
+
 mlst_info = """
 ## Multi-Locus Sequence Typing (MLST)
 Further details can be found in [mlst web page](https://github.com/tseemann/mlst).
@@ -75,6 +135,7 @@ pan_data = pd.read_csv('summary_statistics.txt', sep='\t', names = ['Genes', 'De
 labels = pan_data['Genes'].tolist()
 values = pan_data['Number'].tolist()
 pan_fig = go.Figure(data=[go.Pie(labels=labels, values=values, hole =.5)])
+
 #phylogenetics
 def newicktophylo(t):
     d = {}
@@ -89,7 +150,7 @@ def newicktophylo(t):
     m = pd.DataFrame(d)
     ticknames = m.index.values.tolist()
     fig = ff.create_dendrogram(m, orientation='right', labels=ticknames)
-    fig.update_layout(width=800, height=800, yaxis={'side': 'right'}, plot_bgcolor='rgba(0,0,0,0)')
+    fig.update_layout(width=500, height=700, yaxis={'side': 'right'}, plot_bgcolor='rgba(0,0,0,0)')
     fig.update_traces(hoverinfo='x')
     fig.update_xaxes(ticks="")
     fig.update_yaxes(ticks="")
@@ -101,17 +162,39 @@ cga = newicktophylo(cga)
 with open("accessory_binary_genes.fa.newick") as acc:
     abg = Phylo.read(acc, 'newick')
 abg = newicktophylo(abg)
-## Card Resistance Tables
-dirname = '\\Users\\pathe\\Desktop\\Our10Smalto_Plus_NatureStenos\\report_files'
-filelist = []
-for file in os.listdir(dirname):
-    if file.endswith('card.tab'):
-        filelist.append(file)
+
+## AMR Resistance Tables
+seqs = pd.read_csv("metadata.txt", sep='\t')
+farts = seqs['Samples'].tolist()
 tablelist=[]
-for i in filelist:
-    seq=i.split('_card')[0]
-    df=pd.read_csv(i, sep='\t')
-    tablelist.append(dp.Group(dp.DataTable(df), label=seq))
+for i in farts:
+ res = pd.read_csv(i + '_resfinder.tab', sep='\t')
+ res = generate_html(res)
+ dfc = pd.read_csv(i + '_card.tab', sep='\t')
+ dfc = generate_html(dfc)
+ arg = pd.read_csv(i + '_argannot.tab', sep='\t')
+ arg = generate_html(arg)
+ tablelist.append(dp.Select(label=i, blocks=[dp.Group(dp.HTML(res), label='Resfinder'), dp.Group(dp.HTML(dfc), label='Card'), dp.Group(dp.HTML(arg), label='Argannot')]))
+ #tablelist.append(dp.Select(label=i, blocks=[dp.Group(dp.Table(res), label='Resfinder'), dp.Group(dp.Table(dfc), label='Card'), dp.Group(dp.Table(arg), label='Argannot')]))
+
+## AMR Summaries
+def makeheatmap(df, color):
+   df.set_index('FILE', drop=True, inplace=True)
+   df.drop(columns='NUM_FOUND', inplace=True)
+   if len(df.columns) < len(df):
+      df = df.T
+   fig = px.imshow(df, color_continuous_scale=color)
+   fig.update_layout(coloraxis_showscale=False)
+   return(fig)
+
+resfinder = pd.read_csv('resfinder_summary.tab', sep='\t')
+resfinder = makeheatmap(resfinder, 'viridis')
+
+card = pd.read_csv('card_summary.tab', sep='\t')
+card = makeheatmap(card, 'portland')
+
+argannot = pd.read_csv('argannot_summary.tab', sep='\t')
+argannot = makeheatmap(argannot, 'bluered')
 
 citations = """
 ### Please cite the following software and databases when using this data for your publication:
@@ -145,22 +228,25 @@ citations = """
 """
 
 report = dp.Report(
-    dp.Group(dp.Media(file="./tormessmaller.png", name="Image1"), dp.Text("# Tormes Report \n ### Analysis Performed on 2022-08-26 \n  ### tormes version=1.3.0"), columns=2),
+    dp.Group(dp.Media(file="./tormessmaller.png", name="Image1"), dp.Text(wonk), columns=2),
     dp.Select(type=dp.SelectType.TABS,
         blocks=[
-            dp.Group(dp.Text("## Sequencing Assembly Details"), dp.Text(genome_info), dp.Plot(fig), dp.DataTable(df), label="Genome Stats"),
-            dp.Group(dp.Text(mlst_info), dp.DataTable(mlst_data), label="MLST"),
-            dp.Group(dp.Text(tax_krak_info), dp.DataTable(tax_krak), dp.Text(tax_rdp_info), dp.DataTable(tax_rdp),  label="Taxonomy"),
+            dp.Group(dp.Text("## Sequencing Assembly Details"), dp.Text(genome_info), dp.Plot(fig), dp.HTML(sarhtml), label="Genome Stats"),
+            dp.Group(dp.Text(mlst_info), dp.HTML(mlsthtml), label="MLST"),
+            dp.Group(dp.Text(tax_krak_info), dp.HTML(taxkrakhtml), dp.Text(tax_rdp_info), dp.HTML(taxrdphtml),  label="Taxonomy"),
             dp.Group(dp.Text(pan_info), dp.Table(pan_data), dp.Plot(pan_fig), dp.Media(file='./pangenome.png', name='pangenome'), label="Pangenome"),
             dp.Select(label="Phylogenetics", 
                     blocks=[
                         dp.Group(dp.Text('## Core Genes'), dp.Plot(cga), label="Core Genes"),
-                        dp.Group(dp.Text('## Accessory Genes'), dp.Plot(abg),  label="Accessory Genes")]
-                ),
-            dp.Select(label="Card Resistance",
+                        dp.Group(dp.Text('## Accessory Genes'), dp.Plot(abg),  label="Accessory Genes")]),
+            dp.Select(label="AMR Summaries",
+                    blocks=[dp.Group(dp.Plot(resfinder), label="Resfinder"), 
+                            dp.Group(dp.Plot(argannot), label="Argannot"),
+                            dp.Group(dp.Plot(card), label="Card")]),
+            dp.Select(label="AMR Results",
                     blocks=[*tablelist]),
             dp.Group(dp.Text(citations), label="Citations")
         ]
     ),
 )
-report.save(path="tormes_report1.html")
+report.save(path="tormes_report_html.html")
