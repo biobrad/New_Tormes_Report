@@ -153,7 +153,7 @@ def newicktophylo(t):
     fig.update_layout(width=500, height=700, yaxis={'side': 'right'}, plot_bgcolor='rgba(0,0,0,0)')
     fig.update_traces(hoverinfo='x')
     fig.update_xaxes(ticks="")
-    fig.update_yaxes(ticks="")
+    fig.update_yaxes(ticks="", automargin='left+top')
     return(fig)
     
 with open ("core_gene_alignment.newick") as core:
@@ -182,9 +182,10 @@ def makeheatmap(df, color):
    df.set_index('FILE', drop=True, inplace=True)
    df.drop(columns='NUM_FOUND', inplace=True)
    if len(df.columns) < len(df):
-      df = df.T
-   fig = px.imshow(df, color_continuous_scale=color, width=900, height=900)
-   fig.update_layout(coloraxis_showscale=False)
+    df = df.T
+   fig = px.imshow(df, color_continuous_scale=color)
+   fig.update_layout(coloraxis_showscale=False, autosize=True)
+   fig.update_yaxes(automargin='left+top')
    return(fig)
 
 resfinder = pd.read_csv('resfinder_summary.tab', sep='\t')
@@ -228,7 +229,7 @@ citations = """
 """
 
 report = dp.Report(
-    dp.Group(dp.Media(file="./tormessmaller.png", name="Image1"), dp.Text(wonk), columns=2),
+    dp.Group(dp.Text("""![](https://github.com/biobrad/New_Tormes_Report/blob/main/tormessmaller.PNG?raw=true)"""), dp.Text(wonk), columns=2),
     dp.Select(type=dp.SelectType.TABS,
         blocks=[
             dp.Group(dp.Text("## Sequencing Assembly Details"), dp.Text(genome_info), dp.Plot(fig), dp.HTML(sarhtml), label="Genome Stats"),
