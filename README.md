@@ -1,7 +1,9 @@
 # New_Tormes_Report
-Work in progress of recreating Tormes pipeline report using python
 
-This is a work in progress, not complete, is functional though.
+Version 1.0
+
+### TO DO
+ * add virulence and genera reporting options
 
 ### Usage
 
@@ -17,10 +19,19 @@ After running the tormes pipeline, unpack tormes report files:
 tar -xvzf tormes_report.tgz
 ```
 
-copy tormes_report_wip.py into the tormes_report folder
+Activate the tormes_report environment
+```
+conda activate tormes_report
+```
+
+copy tormes_report-1.0.py into the tormes_report folder
 
 then run it:  
 
 ```
 python tormes_report_wip.py
 ```
+
+### Output
+
+tormes_report_datapane.html
