@@ -254,4 +254,4 @@ report = dp.Report(
         ]
     ),
 )
-report.save(path="tormes_report_html.html")
+report.save(path="tormes_report_datapane.html")
