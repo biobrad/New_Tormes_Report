@@ -13,7 +13,7 @@ Install dependencies either in a conda environment or virtual environment
 conda create -n tormes_report -c conda-forge datapane=0.14.0 plotly biopython
 ```
 
-After running the tormes pipeline, unpack tormes report files:  
+After running the tormes pipeline, unpack tormes report files in your tormes results folder:  
 
 ```
 tar -xvzf tormes_report.tgz
