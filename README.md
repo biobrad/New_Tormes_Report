@@ -29,7 +29,7 @@ copy tormes_report-1.0.py into the tormes_report folder
 then run it:  
 
 ```
-python tormes_report_wip.py
+python tormes_report-1.0.py
 ```
 
 ### Output
