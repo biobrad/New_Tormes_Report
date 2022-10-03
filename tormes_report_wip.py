@@ -9,10 +9,13 @@ from Bio import Phylo
 import plotly.figure_factory as ff
 
 # heading stuff
+
+dirname = os.path.dirname(__file__)
+filename = os.path.join(dirname, '../tormes.log')
 def info():
  header=[]
  for word in ['version', 'pipeline']:
-  with open(r'tormes.log', 'r') as fp:
+  with open(filename, 'r') as fp:
    lines = fp.readlines()
   for line in lines:
    if line.find(word) != -1:
@@ -226,6 +229,7 @@ citations = """
   + reshape2, [H. Wickham, 2007](https://cran.r-project.org/web/packages/reshape2/index.html)
   + rmarkdown, [J.J. Allaire, 2015](https://cran.r-project.org/web/packages/rmarkdown/index.html)
   + treeio, [L-G. Wang *et al*., 2019](https://academic.oup.com/mbe/article-abstract/37/2/599/5601621?redirectedFrom=fulltext)
+* Datapane, [Anthias, L *et al., 2022](https://datapane.com/)
 """
 
 report = dp.Report(
