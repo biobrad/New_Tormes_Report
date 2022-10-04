@@ -2,7 +2,10 @@
 
 Version 1.0
 
+### Note: Currently this reporting option doesn't work with less than 3 sequences or sequence runs where you have requested to skip the pangenome / phylogeny steps of the pipeline
+
 ### TO DO
+ * allow for single/double genome reporting or where user has opted to skip pangenomics and phylogeny steps.
  * add virulence and genera reporting options
 
 ### Usage
