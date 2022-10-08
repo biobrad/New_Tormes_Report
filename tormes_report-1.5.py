@@ -297,7 +297,7 @@ report = dp.Report(TITLE,
                             CITE                            
                         ]))
 
-report.save(path='TORMESREPORT2.html')
+report.save(path='Tormes_Report_Datapane.html')
 
 print('Re-compressing report_files.tgz')
 # restores tarfile of report_files and removes the extracted directory
