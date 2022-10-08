@@ -1,6 +1,10 @@
 # New_Tormes_Report
 
 Version 1.5
+### Improvements
+* largely code based, no cosmetic improvements:
+* script now automatically decompresses and re-compresses report_files.tgz
+* script will not fail if pangenome and phylogenetic details are not present (single, double genome analysis)
 
 ### TO DO
  * add virulence and genera reporting options
