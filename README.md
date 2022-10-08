@@ -1,6 +1,6 @@
 # New_Tormes_Report
 
-Version 1.0
+Version 1.5
 
 ### TO DO
  * add virulence and genera reporting options
