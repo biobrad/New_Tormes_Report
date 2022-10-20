@@ -9,7 +9,7 @@ Version 1.6
 
 ### Usage
 
-Install dependencies either in a conda environment or virtual environment  
+Install dependencies in a conda environment  
 
 ```
 conda create -n tormes_report -c conda-forge datapane=0.14.0 plotly biopython
