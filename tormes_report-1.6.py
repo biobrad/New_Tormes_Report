@@ -290,7 +290,7 @@ CITE = dp.Group(dp.Text(citations), label="Citations")
 VIS.update({'EIGHT': CITE})
 
 farts = list(VIS.values())
-print(farts)
+
 report = dp.Report(TITLE, 
                     dp.Select(type=dp.SelectType.TABS,
                         blocks=farts))
