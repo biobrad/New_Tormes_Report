@@ -1,4 +1,4 @@
-## Tormes_Report_Datapane v1.5 created by Brad Hart - 9/10/2022
+## Tormes_Report_Datapane v1.6 created by Brad Hart - 9/10/2022
 ## Tormes_Report_Datapane created as an add-on to 'Tormes Genome Pipeline'
 ## Tormes Citation:
 ## Narciso M. Quijada, David Rodríguez-Lázaro, Jose María Eiros and Marta Hernández (2019). 
@@ -120,9 +120,8 @@ fig.update_layout(title_text='Sequencing Assembly Report', autosize=False, heigh
             y=1.16,
             showactive=True,
             buttons=click)])
-
 SAR = dp.Group(dp.Text("## Sequencing Assembly Details"), dp.Text(genome_info), dp.Plot(fig), dp.HTML(sarhtml), label="Genome Stats")
-
+VIS = {'ONE': SAR}
 #Taxonomic Information
 tax_krak_info = """### Taxonomic identification by using Kraken2
 Taxonomic identification was performed by using Kraken2 ([Wood *et al*., 2019](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-019-1891-0)). Further details can be found in the [Kraken2 webpage](https://ccb.jhu.edu/software/kraken2/index.shtml).
@@ -147,6 +146,8 @@ taxrdphtml = generate_html(tax_rdp)
 
 TAX = dp.Group(dp.Text(tax_krak_info), dp.HTML(taxkrakhtml), dp.Text(tax_rdp_info), dp.HTML(taxrdphtml),  label="Taxonomy")
 
+VIS.update({'TWO': TAX})
+
 #MLST information
 mlst_info = """
 ## Multi-Locus Sequence Typing (MLST)
@@ -162,6 +163,8 @@ mlsthtml = generate_html(mlst_data)
 
 MLST = dp.Group(dp.Text(mlst_info), dp.HTML(mlsthtml), label="MLST")
 
+VIS.update({'THREE': MLST})
+
 # Pangenome
 qpan = Path('report_files/summary_statistics.txt')
 if qpan.is_file():
@@ -171,9 +174,11 @@ if qpan.is_file():
     labels = pan_data['Genes'].tolist()
     values = pan_data['Number'].tolist()
     pan_fig = go.Figure(data=[go.Pie(labels=labels, values=values, hole =.5)])
-    PANG = dp.Group(dp.Text(pan_info), dp.Table(pan_data), dp.Plot(pan_fig), dp.Media(file='report_files/pangenome.png', name='pangenome'), label="Pangenome")
+    PANG = dp.Group(dp.Text(pan_info), dp.Table(pan_data), dp.Plot(pan_fig), dp.Media(file="report_files/pangenome.png", name="pangenome"), label="Pangenome")
 else:
     PANG = dp.Group(dp.Text("""## Pangenome analysis not performed""" ), label="Pangenome")
+
+VIS.update({'FOUR': PANG})
 
 #Phylogenetics
 def newicktophylo(t):
@@ -203,12 +208,11 @@ if qcore.is_file():
     with open("report_files/accessory_binary_genes.fa.newick") as acc:
         abg = Phylo.read(acc, 'newick')
     abg = newicktophylo(abg)
-    PHYLO = dp.Select(label="Phylogenetics", 
-                        blocks=[
-                            dp.Group(dp.Text('## Core Genes'), dp.Plot(cga), label="Core Genes"),
-                            dp.Group(dp.Text('## Accessory Genes'), dp.Plot(abg),  label="Accessory Genes")])
+    PHYLO = dp.Select(label="Phylogenetics", blocks=[dp.Group(dp.Text("## Core Genes"), dp.Plot(cga), label="Core Genes"), dp.Group(dp.Text("## Accessory Genes"), dp.Plot(abg),  label="Accessory Genes")])
 else:
     PHYLO = dp.Group(dp.Text("""## Phylogenetic analysis not performed"""), label="Phylogenetics",)
+
+VIS.update({'FIVE': PHYLO})
 
 ## AMR Resistance Tables
 seqs = pd.read_csv("report_files/metadata.txt", sep='\t')
@@ -223,6 +227,8 @@ for i in farts:
     arg = generate_html(arg)
     tablelist.append(dp.Select(label=i, blocks=[dp.Group(dp.HTML(res), label='Resfinder'), dp.Group(dp.HTML(dfc), label='Card'), dp.Group(dp.HTML(arg), label='Argannot')]))
 AMRTAB = dp.Select(label="AMR Results", blocks=[*tablelist])
+
+VIS.update({'SIX': AMRTAB})
 
 ## AMR Summaries
 def makeheatmap(df, color):
@@ -243,11 +249,9 @@ card = makeheatmap(card, 'portland')
 argannot = pd.read_csv('report_files/argannot_summary.tab', sep='\t')
 argannot = makeheatmap(argannot, 'bluered')
 
-AMRSUM = dp.Select(label="AMR Summaries",
-                    blocks=[dp.Group(dp.Plot(resfinder), label="Resfinder"), 
-                            dp.Group(dp.Plot(argannot), label="Argannot"),
-                            dp.Group(dp.Plot(card), label="Card")])
+AMRSUM = dp.Select(label="AMR Summaries", blocks=[dp.Group(dp.Plot(resfinder), label="Resfinder"), dp.Group(dp.Plot(argannot), label="Argannot"), dp.Group(dp.Plot(card), label="Card")])
 
+VIS.update({'SEVEN': AMRSUM})
 
 #Citations
 citations = """
@@ -283,20 +287,13 @@ citations = """
 """
 CITE = dp.Group(dp.Text(citations), label="Citations")
 
+VIS.update({'EIGHT': CITE})
 
+farts = list(VIS.values())
+print(farts)
 report = dp.Report(TITLE, 
                     dp.Select(type=dp.SelectType.TABS,
-                        blocks=[
-                            SAR,
-                            TAX,
-                            MLST,
-                            PANG,
-                            PHYLO,
-                            AMRTAB,
-                            AMRSUM,
-                            CITE                            
-                        ]))
-
+                        blocks=farts))
 report.save(path='Tormes_Report_Datapane.html')
 
 print('Re-compressing report_files.tgz')
