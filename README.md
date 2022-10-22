@@ -1,6 +1,6 @@
 # New_Tormes_Report
 
-Alternative reporting option for Prokaryote Genome Pipeline results Tormes:  
+Alternative reporting option for Tormes Genome Pipeline results:  
 https://github.com/nmquijada/tormes
 
 Version 1.7
