@@ -1,8 +1,12 @@
 # New_Tormes_Report
 
-Version 1.6
+Alternative reporting option for Prokaryote Genome Pipeline results Tormes:  
+https://github.com/nmquijada/tormes
+
+Version 1.7
 ### Improvements
-* Code based to allow addition of 'Genera' reporting options elegantly without creating 'placeholder' tabs in the report.
+* Fixed bug that caused single genome reports to crash
+* Added for genera 'Klebsiella' - Surface Polysaccharide locus typing to report
 
 ### TO DO
  * add virulence and genera reporting options
@@ -15,7 +19,7 @@ Install dependencies in a conda environment
 conda create -n tormes_report -c conda-forge datapane=0.14.0 plotly biopython
 ```
 
-After running the tormes pipeline, copy tormes_report-1.6.py into your tormes output folder.
+After running the tormes pipeline, copy tormes_report-1.7.py into your tormes output folder.
 
 Activate your tormes_report environment
 
@@ -26,7 +30,7 @@ conda activate tormes_report
 then run the python script:  
 
 ```
-python tormes_report-1.6.py
+python tormes_report-1.7.py
 ```
 
 ### Output
