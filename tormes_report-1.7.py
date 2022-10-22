@@ -1,4 +1,4 @@
-## Tormes_Report_Datapane v1.6 created by Brad Hart - 9/10/2022
+## Tormes_Report_Datapane v1.7 created by Brad Hart - 22/10/2022
 ## Tormes_Report_Datapane created as an add-on to 'Tormes Genome Pipeline'
 ## Tormes Citation:
 ## Narciso M. Quijada, David Rodríguez-Lázaro, Jose María Eiros and Marta Hernández (2019). 
@@ -123,12 +123,12 @@ fig.update_layout(title_text='Sequencing Assembly Report', autosize=False, heigh
 SAR = dp.Group(dp.Text("## Sequencing Assembly Details"), dp.Text(genome_info), dp.Plot(fig), dp.HTML(sarhtml), label="Genome Stats")
 VIS = {'ONE': SAR}
 #Taxonomic Information
-tax_krak_info = """### Taxonomic identification by using Kraken2
+tax_krak_info = """### Taxonomic identification by Kraken2
 Taxonomic identification was performed by using Kraken2 ([Wood *et al*., 2019](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-019-1891-0)). Further details can be found in the [Kraken2 webpage](https://ccb.jhu.edu/software/kraken2/index.shtml).
 Additionally, 16S rRNA genes were extracted from each genome by using [Barrnap](https://github.com/tseemann/barrnap) and used for taxonomic classification by using the RDP Classifier ([Wang *et al*., 2007](https://aem.asm.org/content/73/16/5261)) at a confidence level of 0.8. Further details can be found in the [RDPTools webpage](https://github.com/rdpstaff/classifier).
 The number between brackets refers to the percentage of reads (when starting TORMES from raw reads) or contigs (when starting TORMES from already assembled genomes) from each sample covered by the clade rooted at this taxon.
 """
-tax_rdp_info = """### Taxonomic identification by using RDP Classifier
+tax_rdp_info = """### Taxonomic identification by RDP Classifier
 Field | Description
 ----- | ---------------------------------------------------------------------------------------
 **Sample** | Name of the sample where the 16S rRNA gene was found. Note that the same sample might harbor more than one 16S rRNA gene copy.
@@ -226,7 +226,10 @@ for i in farts:
     arg = pd.read_csv('report_files/' + i + '_argannot.tab', sep='\t')
     arg = generate_html(arg)
     tablelist.append(dp.Select(label=i, blocks=[dp.Group(dp.HTML(res), label='Resfinder'), dp.Group(dp.HTML(dfc), label='Card'), dp.Group(dp.HTML(arg), label='Argannot')]))
-AMRTAB = dp.Select(label="AMR Results", blocks=[*tablelist])
+if len(tablelist) > 1:
+    AMRTAB = dp.Select(label="AMR Results", blocks=[*tablelist])
+else:
+    AMRTAB = dp.Group(label="AMR Results", blocks=[*tablelist])
 
 VIS.update({'SIX': AMRTAB})
 
@@ -253,6 +256,15 @@ AMRSUM = dp.Select(label="AMR Summaries", blocks=[dp.Group(dp.Plot(resfinder), l
 
 VIS.update({'SEVEN': AMRSUM})
 
+## Surface Polysaccharide locus typing
+
+oloc = Path('report_files/O-locus_table.txt')
+if oloc.is_file():
+    olo = pd.read_csv('report_files/O-locus_table.txt', sep='\t')
+    klo = pd.read_csv('report_files/K-locus_table.txt', sep='\t')
+    LOCUS = dp.Group(dp.Text('## Surface polysaccharide locus typing'), dp.Text('### K-locus typing'), dp.Table(klo), dp.Text('### O-locus typing'), dp.Table(olo), label="Surface Polysaccharide locus typing")
+    VIS.update({'EIGHT': LOCUS})
+    
 #Citations
 citations = """
 ### Please cite the following software and databases when using this data for your publication:
@@ -287,7 +299,7 @@ citations = """
 """
 CITE = dp.Group(dp.Text(citations), label="Citations")
 
-VIS.update({'EIGHT': CITE})
+VIS.update({'NINE': CITE})
 
 farts = list(VIS.values())
 
