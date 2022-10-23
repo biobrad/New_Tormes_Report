@@ -6,10 +6,11 @@ https://github.com/nmquijada/tormes
 Version 1.7
 ### Improvements
 * Fixed bug that caused single genome reports to crash
-* Added genera option 'Klebsiella - Surface Polysaccharide Locus Typing' to report
+* Fixed display issue with pangenome title
+* Added reporting for when Genera - Klebsiella is selected, so far added Surface Polysaccharide Locus typing and Plasmid results
 
 ### TO DO
- * add virulence and genera reporting options
+ * add virulence and more genera reporting options
 
 ### Usage
 
