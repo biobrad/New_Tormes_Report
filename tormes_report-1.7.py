@@ -59,7 +59,6 @@ def generate_html(dataframe: pd.DataFrame):
     # return the html
     return html
 
-
 print("Decompressing \'report_files.tgz\'")
 decompress_tarfile('report_files.tgz')
 
@@ -122,6 +121,7 @@ fig.update_layout(title_text='Sequencing Assembly Report', autosize=False, heigh
             buttons=click)])
 SAR = dp.Group(dp.Text("## Sequencing Assembly Details"), dp.Text(genome_info), dp.Plot(fig), dp.HTML(sarhtml), label="Genome Stats")
 VIS = {'ONE': SAR}
+
 #Taxonomic Information
 tax_krak_info = """### Taxonomic identification by Kraken2
 Taxonomic identification was performed by using Kraken2 ([Wood *et al*., 2019](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-019-1891-0)). Further details can be found in the [Kraken2 webpage](https://ccb.jhu.edu/software/kraken2/index.shtml).
@@ -168,8 +168,10 @@ VIS.update({'THREE': MLST})
 # Pangenome
 qpan = Path('report_files/summary_statistics.txt')
 if qpan.is_file():
-    pan_info = """## Pangenome analysis
-    #### Pangenome genes summary"""
+    pan_info = """
+## Pangenome analysis 
+#### Pangenome genes summary
+"""
     pan_data = pd.read_csv('report_files/summary_statistics.txt', sep='\t', names = ['Genes', 'Description', 'Number'])
     labels = pan_data['Genes'].tolist()
     values = pan_data['Number'].tolist()
@@ -257,14 +259,29 @@ AMRSUM = dp.Select(label="AMR Summaries", blocks=[dp.Group(dp.Plot(resfinder), l
 VIS.update({'SEVEN': AMRSUM})
 
 ## Surface Polysaccharide locus typing
-
 oloc = Path('report_files/O-locus_table.txt')
 if oloc.is_file():
     olo = pd.read_csv('report_files/O-locus_table.txt', sep='\t')
     klo = pd.read_csv('report_files/K-locus_table.txt', sep='\t')
     LOCUS = dp.Group(dp.Text('## Surface polysaccharide locus typing'), dp.Text('### K-locus typing'), dp.Table(klo), dp.Text('### O-locus typing'), dp.Table(olo), label="Surface Polysaccharide locus typing")
     VIS.update({'EIGHT': LOCUS})
-    
+
+## Plasmids
+plaslist=[]
+for i in farts:
+    plas = Path('report_files/' + i + '_plasmids.tab')
+    if plas.is_file():
+        pls = pd.read_csv('report_files/' + i + '_plasmids.tab', sep='\t', usecols=['SEQUENCE', 'START', 'END', 'GENE', 'GAPS', '%COVERAGE', '%IDENTITY', 'PRODUCT'])
+        pls = pls.rename(columns={"Sequence": "Contig"})
+        plaslist.append(dp.Group(dp.Table(pls), label=i))
+if len(plaslist) > 1:
+    PLAS = dp.Select(label="Plasmid Results", blocks=[*plaslist])
+    VIS.update({'NINE': PLAS})
+elif len(plaslist) == 1:
+    PLAS = dp.Group(label="Plasmid Results", blocks=[*plaslist])
+    VIS.update({'NINE': PLAS})
+
+
 #Citations
 citations = """
 ### Please cite the following software and databases when using this data for your publication:
@@ -299,13 +316,13 @@ citations = """
 """
 CITE = dp.Group(dp.Text(citations), label="Citations")
 
-VIS.update({'NINE': CITE})
+VIS.update({'TEN': CITE})
 
-farts = list(VIS.values())
+reportobjects = list(VIS.values())
 
 report = dp.Report(TITLE, 
                     dp.Select(type=dp.SelectType.TABS,
-                        blocks=farts))
+                        blocks=reportobjects))
 report.save(path='Tormes_Report_Datapane.html')
 
 print('Re-compressing report_files.tgz')
