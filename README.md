@@ -18,7 +18,7 @@ Install dependencies in a conda environment
 conda create -n tormes_report -c conda-forge datapane=0.14.0 plotly biopython scipy
 ```
 
-After running the tormes pipeline, copy tormes_report-1.7.py into your tormes output folder.
+After running the tormes pipeline, copy tormes_report-1.75.py into your tormes output folder.
 
 Activate your tormes_report environment
 
@@ -29,7 +29,7 @@ conda activate tormes_report
 then run the python script:  
 
 ```
-python tormes_report-1.7.py
+python tormes_report-1.75.py
 ```
 
 ### Output
