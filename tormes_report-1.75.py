@@ -1,4 +1,4 @@
-## Tormes_Report_Datapane v1.7 created by Brad Hart - 22/10/2022
+## Tormes_Report_Datapane v1.75 created by Brad Hart - 22/10/2022
 ## Tormes_Report_Datapane created as an add-on to 'Tormes Genome Pipeline'
 ## Tormes Citation:
 ## Narciso M. Quijada, David Rodríguez-Lázaro, Jose María Eiros and Marta Hernández (2019). 
@@ -120,7 +120,7 @@ fig.update_layout(title_text='Sequencing Assembly Report', autosize=False, heigh
             showactive=True,
             buttons=click)])
 SAR = dp.Group(dp.Text("## Sequencing Assembly Details"), dp.Text(genome_info), dp.Plot(fig), dp.HTML(sarhtml), label="Genome Stats")
-VIS = {'ONE': SAR}
+VIS = [SAR]
 
 #Taxonomic Information
 tax_krak_info = """### Taxonomic identification by Kraken2
@@ -146,7 +146,7 @@ taxrdphtml = generate_html(tax_rdp)
 
 TAX = dp.Group(dp.Text(tax_krak_info), dp.HTML(taxkrakhtml), dp.Text(tax_rdp_info), dp.HTML(taxrdphtml),  label="Taxonomy")
 
-VIS.update({'TWO': TAX})
+VIS.append(TAX)
 
 #MLST information
 mlst_info = """
@@ -163,7 +163,7 @@ mlsthtml = generate_html(mlst_data)
 
 MLST = dp.Group(dp.Text(mlst_info), dp.HTML(mlsthtml), label="MLST")
 
-VIS.update({'THREE': MLST})
+VIS.append(MLST)
 
 # Pangenome
 qpan = Path('report_files/summary_statistics.txt')
@@ -180,7 +180,8 @@ if qpan.is_file():
 else:
     PANG = dp.Group(dp.Text("""## Pangenome analysis not performed""" ), label="Pangenome")
 
-VIS.update({'FOUR': PANG})
+VIS.append(PANG)
+
 
 #Phylogenetics
 def newicktophylo(t):
@@ -214,18 +215,18 @@ if qcore.is_file():
 else:
     PHYLO = dp.Group(dp.Text("""## Phylogenetic analysis not performed"""), label="Phylogenetics",)
 
-VIS.update({'FIVE': PHYLO})
+VIS.append(PHYLO)
 
 ## AMR Resistance Tables
-seqs = pd.read_csv("report_files/metadata.txt", sep='\t')
+seqs = pd.read_csv("report_files/metadata.txt", sep='\t', )
 farts = seqs['Samples'].tolist()
 tablelist=[]
 for i in farts:
-    res = pd.read_csv('report_files/' + i + '_resfinder.tab', sep='\t')
+    res = pd.read_csv('report_files/' + i + '_resfinder.tab', sep='\t', usecols=['SEQUENCE', 'START', 'END', 'GENE', '%COVERAGE', '%IDENTITY', 'PRODUCT', 'RESISTANCE'])
     res = generate_html(res)
-    dfc = pd.read_csv('report_files/' + i + '_card.tab', sep='\t')
+    dfc = pd.read_csv('report_files/' + i + '_card.tab', sep='\t', usecols=['SEQUENCE', 'START', 'END', 'GENE', '%COVERAGE', '%IDENTITY', 'PRODUCT', 'RESISTANCE'])
     dfc = generate_html(dfc)
-    arg = pd.read_csv('report_files/' + i + '_argannot.tab', sep='\t')
+    arg = pd.read_csv('report_files/' + i + '_argannot.tab', sep='\t', usecols=['SEQUENCE', 'START', 'END', 'GENE', '%COVERAGE', '%IDENTITY', 'PRODUCT'])
     arg = generate_html(arg)
     tablelist.append(dp.Select(label=i, blocks=[dp.Group(dp.HTML(res), label='Resfinder'), dp.Group(dp.HTML(dfc), label='Card'), dp.Group(dp.HTML(arg), label='Argannot')]))
 if len(tablelist) > 1:
@@ -233,7 +234,7 @@ if len(tablelist) > 1:
 else:
     AMRTAB = dp.Group(label="AMR Results", blocks=[*tablelist])
 
-VIS.update({'SIX': AMRTAB})
+VIS.append(AMRTAB)
 
 ## AMR Summaries
 def makeheatmap(df, color):
@@ -245,7 +246,7 @@ def makeheatmap(df, color):
    fig.update_layout(coloraxis_showscale=False, autosize=True)
    fig.update_yaxes(automargin='left+top')
    return(fig)
-resfinder = pd.read_csv('report_files/resfinder_summary.tab', sep='\t')
+resfinder = pd.read_csv('report_files/resfinder_summary.tab', sep='\t', )
 resfinder = makeheatmap(resfinder, 'viridis')
 
 card = pd.read_csv('report_files/card_summary.tab', sep='\t')
@@ -256,7 +257,7 @@ argannot = makeheatmap(argannot, 'bluered')
 
 AMRSUM = dp.Select(label="AMR Summaries", blocks=[dp.Group(dp.Plot(resfinder), label="Resfinder"), dp.Group(dp.Plot(argannot), label="Argannot"), dp.Group(dp.Plot(card), label="Card")])
 
-VIS.update({'SEVEN': AMRSUM})
+VIS.append(AMRSUM)
 
 ## Surface Polysaccharide locus typing
 oloc = Path('report_files/O-locus_table.txt')
@@ -264,23 +265,22 @@ if oloc.is_file():
     olo = pd.read_csv('report_files/O-locus_table.txt', sep='\t')
     klo = pd.read_csv('report_files/K-locus_table.txt', sep='\t')
     LOCUS = dp.Group(dp.Text('## Surface polysaccharide locus typing'), dp.Text('### K-locus typing'), dp.Table(klo), dp.Text('### O-locus typing'), dp.Table(olo), label="Surface Polysaccharide locus typing")
-    VIS.update({'EIGHT': LOCUS})
+    VIS.append(LOCUS)
 
 ## Plasmids
 plaslist=[]
 for i in farts:
     plas = Path('report_files/' + i + '_plasmids.tab')
     if plas.is_file():
-        pls = pd.read_csv('report_files/' + i + '_plasmids.tab', sep='\t', usecols=['SEQUENCE', 'START', 'END', 'GENE', 'GAPS', '%COVERAGE', '%IDENTITY', 'PRODUCT'])
+        pls = pd.read_csv('report_files/' + i + '_plasmids.tab', sep='\t', usecols=['SEQUENCE', 'START', 'END', 'GENE', '%COVERAGE', '%IDENTITY', 'PRODUCT'])
         pls = pls.rename(columns={"Sequence": "Contig"})
         plaslist.append(dp.Group(dp.Table(pls), label=i))
 if len(plaslist) > 1:
     PLAS = dp.Select(label="Plasmid Results", blocks=[*plaslist])
-    VIS.update({'NINE': PLAS})
+    VIS.append(PLAS)
 elif len(plaslist) == 1:
     PLAS = dp.Group(label="Plasmid Results", blocks=[*plaslist])
-    VIS.update({'NINE': PLAS})
-
+    VIS.append(PLAS)
 
 #Citations
 citations = """
@@ -316,13 +316,11 @@ citations = """
 """
 CITE = dp.Group(dp.Text(citations), label="Citations")
 
-VIS.update({'TEN': CITE})
-
-reportobjects = list(VIS.values())
+VIS.append(CITE)
 
 report = dp.Report(TITLE, 
                     dp.Select(type=dp.SelectType.TABS,
-                        blocks=reportobjects))
+                        blocks=VIS))
 report.save(path='Tormes_Report_Datapane.html')
 
 print('Re-compressing report_files.tgz')
