@@ -3,11 +3,9 @@
 Alternative reporting option for Tormes Genome Pipeline results:  
 https://github.com/nmquijada/tormes
 
-Version 1.7
+Version 1.75
 ### Improvements
-* Fixed bug that caused single genome reports to crash
-* Fixed display issue with pangenome title
-* Added reporting for when Genera - Klebsiella is selected, so far added Surface Polysaccharide Locus typing and Plasmid results
+* code based, use of list instead of dictionary for collecting visualisation objects
 
 ### TO DO
  * add virulence and more genera reporting options
@@ -17,7 +15,7 @@ Version 1.7
 Install dependencies in a conda environment  
 
 ```
-conda create -n tormes_report -c conda-forge datapane=0.14.0 plotly biopython
+conda create -n tormes_report -c conda-forge datapane=0.14.0 plotly biopython scipy
 ```
 
 After running the tormes pipeline, copy tormes_report-1.7.py into your tormes output folder.
